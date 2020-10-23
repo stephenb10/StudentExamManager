@@ -21,6 +21,7 @@ class ViewExamViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = "\(exam?.examName! ?? "")"
 
         // Do any additional setup after loading the view.
     }
