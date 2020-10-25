@@ -84,6 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return appDelegate.persistentContainer.viewContext
     }
     
+    // MARK: - Core data exam functions
     
     func storeExam(examName: String, dateTime : Date, location : String)
     {
@@ -103,15 +104,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func getExams() -> [Exam] {
-        var exams = [Exam]()
+        let exams = [Exam]()
         
         let fetchRequest = NSFetchRequest<Exam>(entityName: "Exam")
         
         do {
             let fetchedResults = try getContext().fetch(fetchRequest)
-            print("\(fetchedResults.count) returned exams")
-            
-            exams = fetchedResults
+            return fetchedResults
         } catch {
             print("Error with request: \(error)")
         }
@@ -120,26 +119,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     
-    
     func updateExam(exam : Exam)  {
         let obj = getContext().object(with: exam.objectID)
-        if obj != nil {
-            obj.setValue(exam.examName, forKey: "examName")
-            obj.setValue(exam.location, forKey: "location")
-            obj.setValue(exam.dateTime, forKey: "dateTime")
-            saveContext()
-            print("Updated Exam ")
-        }
-        
+        obj.setValue(exam.examName, forKey: "examName")
+        obj.setValue(exam.location, forKey: "location")
+        obj.setValue(exam.dateTime, forKey: "dateTime")
+        saveContext()
     }
     
-    func updateExamStudents(exam : Exam) {
-        let obj = getContext().object(with: exam.objectID)
-        
-            obj.setValue(exam.students, forKey: "students")
-            saveContext()
-            print("Updated Exam ")
-        
+    func updateExamStudents(id : NSManagedObjectID, students : [Int]) {
+        let obj = getContext().object(with: id)
+        obj.setValue(students, forKey: "students")
+        saveContext()
     }
     
     func deleteExam(id : NSManagedObjectID)
@@ -150,7 +141,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
     }
     
-    
+    // MARK: - Core Data student functions
     
     func storeStudent (id: Int, firstName: String, lastName: String, dateOfBirth: Date, gender: String, address: String, course: String, imageData:NSData) {
         let context = getContext()
@@ -158,73 +149,81 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //retrieve the entity that we just created
         let entity =  NSEntityDescription.entity(forEntityName: "Student", in: context)
         
-        let transc = NSManagedObject(entity: entity!, insertInto: context)
+        let obj = NSManagedObject(entity: entity!, insertInto: context)
         
         //set the entity values
-        transc.setValue(id, forKey: "studentID")
-        transc.setValue(lastName, forKey: "lastName")
-        transc.setValue(firstName, forKey: "firstName")
-        transc.setValue(dateOfBirth, forKey: "dateOfBirth")
-        transc.setValue(address, forKey: "address")
-        transc.setValue(gender, forKey: "gender")
-        transc.setValue(course, forKey: "course")
-        transc.setValue(imageData, forKey: "image")
+        obj.setValue(id, forKey: "studentID")
+        obj.setValue(lastName, forKey: "lastName")
+        obj.setValue(firstName, forKey: "firstName")
+        obj.setValue(dateOfBirth, forKey: "dateOfBirth")
+        obj.setValue(address, forKey: "address")
+        obj.setValue(gender, forKey: "gender")
+        obj.setValue(course, forKey: "course")
+        obj.setValue(imageData, forKey: "image")
         
         saveContext()
     }
     
-    func isIDUnique(id : Int) -> Bool {
+    
+    func getStudentsExams(id: Int) -> [Exam] {
+        var studentExams = [Exam]()
+        let exams = getExams()
+        for exam in exams {
+            for i in exam.students! {
+                if i == id
+                {
+                    studentExams.append(exam)
+                }
+            }
+        }
         
+        return studentExams
+    }
+    
+    /// Checks if ID is unique to store student in core data
+    /// - Parameter id: the ID to check if unique
+    /// - Returns: false if at least 1 student is returned from the query, else true if 0 students returned
+    func isIDUnique(id : Int) -> Bool {
         let fetchRequest = NSFetchRequest<Student>(entityName: "Student")
         fetchRequest.predicate = NSPredicate(format: "studentID == \(id)")
         do {
             let count = try getContext().count(for: fetchRequest)
-            print("Students with id \(id) : \(count)")
             return (count >= 1) ? false : true
         } catch{
             print("Error with request: \(error)")
         }
-        fetchRequest.predicate = NSPredicate(format: "studentID == \(id)")
         return false
-    }
-    
-    func getStudent (id : Int) -> Student {
-        
-        let fetchRequest = NSFetchRequest<Student>(entityName: "Student")
-        fetchRequest.predicate = NSPredicate(format: "studentID == \(id)")
-        var student = Student()
-        
-        do {
-            let fetchedResults = try getContext().fetch(fetchRequest)
-            if let aStudent = fetchedResults.first {
-                student = aStudent
-            }
-        } catch {
-            print("Error with request: \(error)")
-        }
-        
-        return student;
     }
     
     func deleteStudent (id : NSManagedObjectID) {
         let obj = getContext().object(with: id)
+        let sid = obj.value(forKey: "studentID")
+        
+        // Unenroll student from all exams
+        let studentExams = getStudentsExams(id: sid as! Int)
+        for exam in studentExams {
+            for i in 0...exam.students!.count {
+                if exam.students![i] == sid as! Int {
+                    exam.students?.remove(at: i)
+                    updateExamStudents(id: exam.objectID, students: exam.students!)
+                    break
+                }
+            }
+        }
+        
         getContext().delete(obj)
         saveContext()
-        
     }
     
+    // Return all students in an array
     func getStudents () -> [Student] {
-        var students = [Student]()
+        let students = [Student]()
         
         let fetchRequest = NSFetchRequest<Student>(entityName: "Student")
         
         do {
             let fetchedResults = try getContext().fetch(fetchRequest)
-            print("\(fetchedResults.count) returned students")
-            
-            for student in fetchedResults {
-                students.append(student)
-            }
+            return fetchedResults
         } catch {
             print("Error with request: \(error)")
         }
@@ -236,38 +235,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
         fetchRequest.predicate = NSPredicate(format: "studentID == \(student.studentID)")
         do {
-            let fetchedResults = try getContext().fetch(fetchRequest) as? [NSManagedObject]
-            print("count of fetched results \(fetchedResults?.count)")
-            if fetchedResults!.count > 0 {
-                fetchedResults![0].setValue(student.studentID, forKey: "studentID")
-                fetchedResults![0].setValue(student.lastName, forKey: "lastName")
-                fetchedResults![0].setValue(student.firstName, forKey: "firstName")
-                fetchedResults![0].setValue(student.dateOfBirth, forKey: "dateOfBirth")
-                fetchedResults![0].setValue(student.address, forKey: "address")
-                fetchedResults![0].setValue(student.gender, forKey: "gender")
-                fetchedResults![0].setValue(student.course, forKey: "course")
-                fetchedResults![0].setValue(student.image, forKey: "image")
+            let obj = try getContext().fetch(fetchRequest) as? [NSManagedObject]
+            if obj!.count > 0 {
+                obj![0].setValue(student.studentID, forKey: "studentID")
+                obj![0].setValue(student.lastName, forKey: "lastName")
+                obj![0].setValue(student.firstName, forKey: "firstName")
+                obj![0].setValue(student.dateOfBirth, forKey: "dateOfBirth")
+                obj![0].setValue(student.address, forKey: "address")
+                obj![0].setValue(student.gender, forKey: "gender")
+                obj![0].setValue(student.course, forKey: "course")
+                obj![0].setValue(student.image, forKey: "image")
                 saveContext()
-                print("Updated student ")
             }
         } catch {
             print("Error with request: \(error)")
         }
     }
-    
-    func removeRecords () {
-        let context = getContext()
-        // delete everything in student table
-        let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
-        
-        do {
-            try context.execute(deleteRequest)
-            try context.save()
-        } catch {
-            print ("There was an error")
-        }
-    }
-    
 }
 

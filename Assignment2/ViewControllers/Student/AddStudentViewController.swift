@@ -63,7 +63,7 @@ UINavigationControllerDelegate, UITextFieldDelegate {
                    return
                }
         
-        var g = genderSelection.titleForSegment(at: genderSelection.selectedSegmentIndex) ?? "Male"
+        let g = genderSelection.titleForSegment(at: genderSelection.selectedSegmentIndex) ?? "Male"
         
         appDelegate.storeStudent(id: id, firstName: firstNameField.text!, lastName: lastNameField.text!, dateOfBirth: date.date, gender: g, address: addressField.text!, course: courseField.text!, imageData: imageData as NSData)
         tableViewInstance.updateStudents()
@@ -89,7 +89,7 @@ UINavigationControllerDelegate, UITextFieldDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         if let image = info[.originalImage] {
-            imagePicked.image = image as! UIImage
+            imagePicked.image = (image as! UIImage)
             print("picked image")
             dismiss(animated: true, completion: nil)
         }

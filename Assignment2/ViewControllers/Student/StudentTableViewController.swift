@@ -13,7 +13,6 @@ struct StudentSection {
     let students : [Student]
 }
 
-
 class StudentTableViewController: UITableViewController {
     
     var students = [Student]()
@@ -22,23 +21,20 @@ class StudentTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.navigationBar.tintColor = UIColor.white
+        
         
         self.tableView.separatorStyle = .none
         self.tableView.tableFooterView = UIView()
         
         updateStudents()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
         
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
-    
     }
     
     override func viewWillAppear(_ animated: Bool) {
         selectedStudent = nil
+        
+        self.navigationController?.navigationBar.isHidden = false
+        self.navigationController?.navigationBar.tintColor = UIColor.white
     }
     
     func updateStudents()
@@ -51,7 +47,6 @@ class StudentTableViewController: UITableViewController {
             return String(student.firstName!.first!).uppercased()
         }
         
-        print(groupedDictionary)
         // get the keys and sort them
         let keys = groupedDictionary.keys.sorted()
         // map the sorted keys to a struct
@@ -64,20 +59,20 @@ class StudentTableViewController: UITableViewController {
     // Returns the number of sections, if no data display an appropriate message
     override func numberOfSections(in tableView: UITableView) -> Int {
         if students.count > 0
-               {
-                   tableView.backgroundView = nil
-                   tableView.alwaysBounceVertical = true
-               }
-               else
-               {
-                   let noDataLabel: UILabel  = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
-                   noDataLabel.text          = "No students added yet"
-                    noDataLabel.textColor     = UIColor.label
-                   noDataLabel.textAlignment = .center
-                   tableView.backgroundView  = noDataLabel
-                   tableView.separatorStyle  = .none
-                   tableView.alwaysBounceVertical = false
-               }
+        {
+            tableView.backgroundView = nil
+            tableView.alwaysBounceVertical = true
+        }
+        else
+        {
+            let noDataLabel: UILabel  = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
+            noDataLabel.text          = "No students added yet"
+            noDataLabel.textColor     = UIColor.label
+            noDataLabel.textAlignment = .center
+            tableView.backgroundView  = noDataLabel
+            tableView.separatorStyle  = .none
+            tableView.alwaysBounceVertical = false
+        }
         return sections.count
     }
     
@@ -86,7 +81,7 @@ class StudentTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return sections[section].students.count
     }
-
+    
     // Section title returns the letter for the appropriate section
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return sections[section].letter
@@ -141,11 +136,9 @@ class StudentTableViewController: UITableViewController {
         return 100
     }
     
-    
     override func viewDidLayoutSubviews() {
-       tableView.separatorStyle = .none
+        tableView.separatorStyle = .none
     }
-    
     
     /*
      // Override to support conditional editing of the table view.

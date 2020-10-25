@@ -24,9 +24,7 @@ class EnrollmentTableViewController: UITableViewController {
         self.tableView.tableFooterView = UIView()
         if students != nil
         {
-            print(students)
             updateStudents()
-            print("students")
         }
        
         // Uncomment the following line to preserve selection between presentations
@@ -78,7 +76,7 @@ class EnrollmentTableViewController: UITableViewController {
             
             let noDataLabel: UILabel  = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
             noDataLabel.text          = st
-            noDataLabel.textColor     = UIColor.black
+            noDataLabel.textColor     = UIColor.label
             noDataLabel.textAlignment = .center
             tableView.backgroundView  = noDataLabel
             tableView.separatorStyle  = .none
@@ -105,7 +103,7 @@ class EnrollmentTableViewController: UITableViewController {
         label.frame = CGRect.init(x: 25, y: 5, width: vw.frame.width-10, height: vw.frame.height-10)
         label.text = sections[section].letter
         label.font = UIFont.systemFont(ofSize: 28)
-        label.textColor = UIColor.black
+        label.textColor = UIColor.label
         vw.addSubview(label)
         return vw
     }

@@ -81,17 +81,7 @@ class ViewStudentViewController: UIViewController {
         if let vc = segue.destination as? ExamTableViewController {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             
-            var studentExams = [Exam]()
-            let exams = appDelegate.getExams()
-            for exam in exams {
-                for id in exam.students! {
-                    var i = Int(student!.studentID)
-                    if i == id
-                    {
-                        studentExams.append(exam)
-                    }
-                }
-            }
+            let studentExams = appDelegate.getStudentsExams(id: Int(student!.studentID))
             
             vc.exams = studentExams
         }

@@ -13,7 +13,6 @@ struct ExamSection {
     let exams : [Exam]
 }
 
-
 class ExamTableViewController: UITableViewController {
     
     var selectedExam : Exam?
@@ -24,8 +23,7 @@ class ExamTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.navigationBar.tintColor = UIColor.white
+    
         
         self.tableView.separatorStyle = .none
         self.tableView.tableFooterView = UIView()
@@ -35,40 +33,16 @@ class ExamTableViewController: UITableViewController {
             updateExams()
         }
         
+        generateSections()
         
-              let groupedDictionary =  Dictionary(grouping: exams) { (exam) -> String in
-                  
-                  // check if date is upcomming or passed then return upcomming or previous
-                  let now = Date()
-                  if now >= exam.dateTime!
-                  {
-                      return "Previous"
-                  }
-                  else
-                  {
-                      return "Upcomming"
-                  }
-              }
-              
-              
-              print(groupedDictionary)
-              // get the keys and sort them so upcomming is first
-              let keys = groupedDictionary.keys.sorted { (a, b) -> Bool in
-                  a > b
-              }
-              print(keys)
-              // map the sorted keys to a struct
-              sections = keys.map{ ExamSection(header: $0, exams: groupedDictionary[$0]!.sorted(by: {$0.dateTime! > $1.dateTime!})) }
-              print("Updated table")
-              self.tableView.reloadData()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-        
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        self.tableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+        self.navigationController?.navigationBar.isHidden = false
+        self.navigationController?.navigationBar.tintColor = UIColor.white
+        
         if exams.count < 1
         {
             updateExams()
@@ -76,17 +50,9 @@ class ExamTableViewController: UITableViewController {
         selectedExam = nil
     }
     
-    
-    func updateExams() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
-        // get excams from appdelegate
-        exams = appDelegate.getExams()
-        
-        
+    func generateSections()
+    {
         let groupedDictionary =  Dictionary(grouping: exams) { (exam) -> String in
-            
-            // check if date is upcomming or passed then return upcomming or previous
             let now = Date()
             if now >= exam.dateTime!
             {
@@ -98,16 +64,23 @@ class ExamTableViewController: UITableViewController {
             }
         }
         
-        
-        print(groupedDictionary)
         // get the keys and sort them so upcomming is first
         let keys = groupedDictionary.keys.sorted { (a, b) -> Bool in
             a > b
         }
-        print(keys)
         // map the sorted keys to a struct
+        sections.removeAll()
         sections = keys.map{ ExamSection(header: $0, exams: groupedDictionary[$0]!.sorted(by: {$0.dateTime! > $1.dateTime!})) }
-        print("Updated table")
+    }
+    
+    
+    func updateExams() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
+        exams = appDelegate.getExams()
+        
+        generateSections()
+        
         self.tableView.reloadData()
     }
     
@@ -125,7 +98,7 @@ class ExamTableViewController: UITableViewController {
         {
             let noDataLabel: UILabel  = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: tableView.bounds.size.height))
             noDataLabel.text          = "No exams added yet"
-            noDataLabel.textColor     = UIColor.black
+            noDataLabel.textColor     = UIColor.label
             noDataLabel.textAlignment = .center
             tableView.backgroundView  = noDataLabel
             tableView.separatorStyle  = .none
@@ -139,8 +112,6 @@ class ExamTableViewController: UITableViewController {
         return sections[section].exams.count
     }
     
-    
-    
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return sections[section].header
     }
@@ -152,7 +123,7 @@ class ExamTableViewController: UITableViewController {
         label.frame = CGRect.init(x: 25, y: 5, width: vw.frame.width-10, height: vw.frame.height-10)
         label.text = sections[section].header
         label.font = UIFont.systemFont(ofSize: 28)
-        label.textColor = UIColor.black
+        label.textColor = UIColor.label
         vw.addSubview(label)
         return vw
     }
@@ -180,12 +151,8 @@ class ExamTableViewController: UITableViewController {
     
     // Segue to the viewStudentViewController passing the selected student
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let row = indexPath.row
-        let section = indexPath.section
-        
-        selectedExam = sections[section].exams[row]
+        selectedExam = sections[indexPath.section].exams[indexPath.row]
         performSegue(withIdentifier: "showExam", sender: nil)
-        
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -194,12 +161,38 @@ class ExamTableViewController: UITableViewController {
         return 100
     }
     
-    
     override func viewDidLayoutSubviews() {
         tableView.separatorStyle = .none
     }
-    
-    
+           
+    // Override to support editing the table view.
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Delete the row from the data source
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let id = sections[indexPath.section].exams[indexPath.row].objectID
+            let examCount = sections[indexPath.section].exams.count
+            
+            // Remove the exam from coreData and re generate the sections
+            appDelegate.deleteExam(id: id)
+            exams = appDelegate.getExams()
+            generateSections()
+            
+            // If last exam in section delete the whole section
+            if examCount <= 1
+            {
+                let Tablesection = IndexSet(integer: indexPath.section)
+                tableView.deleteSections(Tablesection, with: .fade)
+            }
+            else
+            {
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+            
+        } else if editingStyle == .insert {
+            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+        }
+    }
     
     /*
      // Override to support conditional editing of the table view.
@@ -209,17 +202,6 @@ class ExamTableViewController: UITableViewController {
      }
      */
     
-    /*
-     // Override to support editing the table view.
-     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-     if editingStyle == .delete {
-     // Delete the row from the data source
-     tableView.deleteRows(at: [indexPath], with: .fade)
-     } else if editingStyle == .insert {
-     // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-     }
-     }
-     */
     
     /*
      // Override to support rearranging the table view.
@@ -250,8 +232,8 @@ class ExamTableViewController: UITableViewController {
         if let vc = segue.destination as? ViewExamViewController {
             vc.exam = selectedExam
             vc.examTableViewInstance = self
-               }
-               
+        }
+        
         
     }
     

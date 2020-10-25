@@ -62,6 +62,7 @@ class ViewExamViewController: UIViewController {
         
         if let vc = segue.destination as? EnrolmentViewController {
             vc.exam = exam
+            vc.examTableInstance = examTableViewInstance
         }
     
         

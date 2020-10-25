@@ -142,7 +142,7 @@ class EditStudentViewController: UIViewController, UIImagePickerControllerDelega
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         if let image = info[.originalImage] {
-            imagePicked.image = image as! UIImage
+            imagePicked.image = (image as! UIImage)
             print("picked image")
             dismiss(animated: true, completion: nil)
         }
