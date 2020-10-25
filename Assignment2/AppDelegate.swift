@@ -235,16 +235,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
         fetchRequest.predicate = NSPredicate(format: "studentID == \(student.studentID)")
         do {
-            let obj = try getContext().fetch(fetchRequest) as? [NSManagedObject]
-            if obj!.count > 0 {
-                obj![0].setValue(student.studentID, forKey: "studentID")
-                obj![0].setValue(student.lastName, forKey: "lastName")
-                obj![0].setValue(student.firstName, forKey: "firstName")
-                obj![0].setValue(student.dateOfBirth, forKey: "dateOfBirth")
-                obj![0].setValue(student.address, forKey: "address")
-                obj![0].setValue(student.gender, forKey: "gender")
-                obj![0].setValue(student.course, forKey: "course")
-                obj![0].setValue(student.image, forKey: "image")
+            let objects = try getContext().fetch(fetchRequest) as? [NSManagedObject]
+            if objects!.count > 0 {
+                let obj = objects![0]
+                obj.setValue(student.studentID, forKey: "studentID")
+                obj.setValue(student.lastName, forKey: "lastName")
+                obj.setValue(student.firstName, forKey: "firstName")
+                obj.setValue(student.dateOfBirth, forKey: "dateOfBirth")
+                obj.setValue(student.address, forKey: "address")
+                obj.setValue(student.gender, forKey: "gender")
+                obj.setValue(student.course, forKey: "course")
+                obj.setValue(student.image, forKey: "image")
                 saveContext()
             }
         } catch {
