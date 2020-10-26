@@ -30,12 +30,6 @@ class EditExamViewController: UIViewController {
         {
             prepareFileds()
         }
-        else
-        {
-            self.alert(title: "Error", message: "Exam is nil")
-            
-        }
-        // Do any additional setup after loading the view.
     }
     
     func prepareFileds()
@@ -96,15 +90,5 @@ class EditExamViewController: UIViewController {
         
         self.present(alertController, animated: true)
     }
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

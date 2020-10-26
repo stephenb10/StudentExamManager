@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewExamViewController: UIViewController {
-
+    
     var examTableViewInstance : ExamTableViewController?
     
     var exam : Exam?
@@ -22,14 +22,11 @@ class ViewExamViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "\(exam?.examName! ?? "")"
-
-        // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
         prepareExamFields()
     }
-    
     
     func prepareExamFields(){
         examName.text = exam?.examName
@@ -42,19 +39,18 @@ class ViewExamViewController: UIViewController {
         examDate.text = d
     }
     
-
+    
     @IBAction func editExam(_ sender: Any) {
         let editVC = self.storyboard?.instantiateViewController(withIdentifier:"editExam") as? EditExamViewController
         editVC?.exam = exam
         editVC?.viewInstance = self
-               
-               
+        
         self.navigationController?.fadeTo(editVC!)
     }
-
+    
     
     // MARK: - Navigation
-
+    
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
@@ -64,9 +60,9 @@ class ViewExamViewController: UIViewController {
             vc.exam = exam
             vc.examTableInstance = examTableViewInstance
         }
-    
+        
         
     }
     
-
+    
 }

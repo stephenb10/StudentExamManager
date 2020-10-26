@@ -31,20 +31,14 @@ class EnrolmentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+
         enrolledView.alpha = 1
         notEnrolledView.alpha = 0
-        
-        type = 1
-        
-        // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
         updateStudents()
     }
-    
     
     func updateStudents(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -53,13 +47,13 @@ class EnrolmentViewController: UIViewController {
         
         // Collect the enrolled students for the current exam
         for studentID in exam!.students! {
-            var i = 0
-            for student in unenrolledStudents {
-                if student.studentID == studentID {
-                    enrolledStudents.append(student)
-                    unenrolledStudents.remove(at: i)
+           if !unenrolledStudents.isEmpty {
+            for i in 0...unenrolledStudents.count-1 {
+                    if unenrolledStudents[i].studentID == studentID {
+                        enrolledStudents.append(unenrolledStudents[i])
+                        unenrolledStudents.remove(at: i)
+                    }
                 }
-                i += 1
             }
         }
         
@@ -74,8 +68,6 @@ class EnrolmentViewController: UIViewController {
     }
     
     @IBAction func viewChanged(_ sender: Any) {
-        
-        print("changing")
         switch viewSegmentControl.selectedSegmentIndex {
         // enrolled view
         case 0:
@@ -112,13 +104,13 @@ class EnrolmentViewController: UIViewController {
     func unenrolStudent(id : Int)  {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
-        var i = 0
-        for idd in exam!.students! {
-            if idd == id {
-                exam?.students?.remove(at: i)
-                break
+        if !exam!.students!.isEmpty {
+            for i in 0...exam!.students!.count-1{
+                if exam!.students![i] == id {
+                    exam?.students?.remove(at: i)
+                    break
+                }
             }
-            i += 1
         }
         appDelegate.updateExamStudents(id: exam!.objectID, students: exam!.students!)
         

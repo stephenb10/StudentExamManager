@@ -118,7 +118,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return exams
     }
     
-    
     func updateExam(exam : Exam)  {
         let obj = getContext().object(with: exam.objectID)
         obj.setValue(exam.examName, forKey: "examName")
@@ -138,7 +137,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let obj = getContext().object(with: id)
         getContext().delete(obj)
         saveContext()
-        
     }
     
     // MARK: - Core Data student functions
@@ -186,12 +184,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func isIDUnique(id : Int) -> Bool {
         let fetchRequest = NSFetchRequest<Student>(entityName: "Student")
         fetchRequest.predicate = NSPredicate(format: "studentID == \(id)")
+        
         do {
             let count = try getContext().count(for: fetchRequest)
             return (count >= 1) ? false : true
         } catch{
             print("Error with request: \(error)")
         }
+        
         return false
     }
     
@@ -202,11 +202,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Unenroll student from all exams
         let studentExams = getStudentsExams(id: sid as! Int)
         for exam in studentExams {
-            for i in 0...exam.students!.count {
-                if exam.students![i] == sid as! Int {
-                    exam.students?.remove(at: i)
-                    updateExamStudents(id: exam.objectID, students: exam.students!)
-                    break
+            if !exam.students!.isEmpty {
+                for i in 0...exam.students!.count-1 {
+                    if exam.students![i] == sid as! Int {
+                        exam.students?.remove(at: i)
+                        updateExamStudents(id: exam.objectID, students: exam.students!)
+                        break
+                    }
                 }
             }
         }
@@ -218,7 +220,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Return all students in an array
     func getStudents () -> [Student] {
         let students = [Student]()
-        
         let fetchRequest = NSFetchRequest<Student>(entityName: "Student")
         
         do {
@@ -234,10 +235,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func updateStudent(student: Student) {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Student")
         fetchRequest.predicate = NSPredicate(format: "studentID == \(student.studentID)")
+        
         do {
             let objects = try getContext().fetch(fetchRequest) as? [NSManagedObject]
             if objects!.count > 0 {
                 let obj = objects![0]
+                
                 obj.setValue(student.studentID, forKey: "studentID")
                 obj.setValue(student.lastName, forKey: "lastName")
                 obj.setValue(student.firstName, forKey: "firstName")
@@ -246,6 +249,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 obj.setValue(student.gender, forKey: "gender")
                 obj.setValue(student.course, forKey: "course")
                 obj.setValue(student.image, forKey: "image")
+                
                 saveContext()
             }
         } catch {

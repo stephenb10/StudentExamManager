@@ -12,7 +12,7 @@ class ViewStudentViewController: UIViewController {
     
     var student : Student?
     var tableViewInstace:StudentTableViewController?
-
+    
     
     @IBOutlet weak var idField: UILabel!
     @IBOutlet weak var firstNameField: UILabel!
@@ -24,21 +24,14 @@ class ViewStudentViewController: UIViewController {
     @IBOutlet weak var studentImage: RoundImage!
     @IBOutlet weak var dateField: UILabel!
     
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
         navigationItem.title = "\(student?.firstName ?? "") \(student?.lastName ?? "")"
-       prepareFields()
+        prepareFields()
     }
-    
-
     
     @IBAction func editStudent(_ sender: Any) {
         
@@ -63,17 +56,15 @@ class ViewStudentViewController: UIViewController {
         df.dateFormat = "dd-MM-yyyy"
         let d = df.string(from: (student?.dateOfBirth)!)
         dateField.text = d
-            
-        
     }
-
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     
+    
+    // MARK: - Navigation
+    
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+        
         if let vc = segue.destination as? MapViewController {
             vc.StringLocation = addressField.text
         }
@@ -85,8 +76,8 @@ class ViewStudentViewController: UIViewController {
             
             vc.exams = studentExams
         }
-     }
-     
+    }
+    
     
 }
 

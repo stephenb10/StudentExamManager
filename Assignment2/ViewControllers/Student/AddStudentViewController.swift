@@ -9,8 +9,7 @@
 import UIKit
 
 class AddStudentViewController: UIViewController, UIImagePickerControllerDelegate,
-UINavigationControllerDelegate, UITextFieldDelegate {
-    
+                                UINavigationControllerDelegate, UITextFieldDelegate {
     
     var tableViewInstance:StudentTableViewController!
     var viewStudentInstance:ViewStudentViewController?
@@ -32,14 +31,11 @@ UINavigationControllerDelegate, UITextFieldDelegate {
         view.addGestureRecognizer(tap)
         
         idField.delegate = self
-        // Do any additional setup after loading the view.
     }
     
     
     @IBAction func saveStudent(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
-        
         
         if idField.text!.isEmpty || firstNameField.text!.isEmpty || lastNameField.text!.isEmpty || addressField.text!.isEmpty || courseField.text!.isEmpty
         {
@@ -47,8 +43,6 @@ UINavigationControllerDelegate, UITextFieldDelegate {
             return
         }
         
-        
-       
         let id = Int(idField.text!) ?? -1
         
         if !appDelegate.isIDUnique(id: id)
@@ -58,16 +52,15 @@ UINavigationControllerDelegate, UITextFieldDelegate {
         }
         
         guard let imageData = imagePicked.image!.jpegData(compressionQuality: 1) else {
-                   // handle failed conversion
-                   print("jpg error")
-                   return
-               }
+            // handle failed conversion
+            print("jpg error")
+            return
+        }
         
         let g = genderSelection.titleForSegment(at: genderSelection.selectedSegmentIndex) ?? "Male"
         
         appDelegate.storeStudent(id: id, firstName: firstNameField.text!, lastName: lastNameField.text!, dateOfBirth: date.date, gender: g, address: addressField.text!, course: courseField.text!, imageData: imageData as NSData)
         tableViewInstance.updateStudents()
-        
         
         self.dismiss(animated: true, completion: nil)
     }
@@ -94,7 +87,8 @@ UINavigationControllerDelegate, UITextFieldDelegate {
             dismiss(animated: true, completion: nil)
         }
     }
-     
+    
+    // Does not allow letters to be entered and no more than 10 characters
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         var value = true
         let maxLength = 10
@@ -111,19 +105,7 @@ UINavigationControllerDelegate, UITextFieldDelegate {
         }
         
         return value 
-
+        
     }
-    
-    
-    
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
     
 }
